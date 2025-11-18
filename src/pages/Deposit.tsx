@@ -36,6 +36,12 @@ const paymentDetails: any = {
     number: "5484460473322410",
     note: "حوّل المبلغ عبر تطبيق Instapay إلى رقم البطاقة الموضح.\nاسم حامل البطاقة: YOUSSEF ELSAYED",
   },
+  paymob: {
+    name: "الدفع ببطاقة بنكية / PayPal",
+    icon: "https://cdn.paymob.com/media/paymob_logo.png",
+    note: "سيتم تحويلك إلى صفحة الدفع الآمنة لإتمام العملية",
+    isOnline: true
+  },
 };
 
 const Deposit = () => {
@@ -61,10 +67,50 @@ const Deposit = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Handle Paymob payment
+    if (paymentMethod === 'paymob') {
+      if (!amount) {
+        toast({ title: "خطأ", description: "يرجى إدخال المبلغ", variant: "destructive" });
+        return;
+      }
+      
+      setLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase.functions.invoke('paymob-payment', {
+          body: {
+            amount: parseFloat(amount),
+            paymentMethod: 'card',
+            userId: user.id
+          }
+        });
+
+        if (error) throw error;
+        
+        if (data?.iframeUrl) {
+          window.open(data.iframeUrl, '_blank');
+          toast({ 
+            title: "جاري التحويل", 
+            description: "سيتم فتح صفحة الدفع في نافذة جديدة" 
+          });
+        }
+      } catch (error: any) {
+        toast({ title: "خطأ", description: error.message, variant: "destructive" });
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Handle traditional payment methods
     if (!proofImage || !amount || !paymentMethod) {
       toast({ title: "خطأ", description: "يرجى ملء جميع الحقول", variant: "destructive" });
       return;
     }
+    
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -142,10 +188,11 @@ const Deposit = () => {
                     <SelectItem value="etisalat">Etisalat Cash</SelectItem>
                     <SelectItem value="telda">Telda</SelectItem>
                     <SelectItem value="instapay">InstaPay</SelectItem>
+                    <SelectItem value="paymob">بطاقة بنكية / PayPal (Paymob)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {paymentMethod && (
+              {paymentMethod && !paymentDetails[paymentMethod]?.isOnline && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-right space-y-2">
                   <div className="flex items-center gap-3">
                     <img src={paymentDetails[paymentMethod].icon} alt={paymentDetails[paymentMethod].name} className="w-8 h-8 rounded-full" />
@@ -160,18 +207,29 @@ const Deposit = () => {
                   <p className="text-sm text-blue-800 whitespace-pre-line">{paymentDetails[paymentMethod].note}</p>
                 </div>
               )}
-              <div className="space-y-2">
-                <Label htmlFor="proof">إثبات الدفع (صورة)</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
-                  <Input id="proof" type="file" accept="image/*" onChange={(e) => setProofImage(e.target.files?.[0] || null)} className="hidden" required />
-                  <label htmlFor="proof" className="cursor-pointer flex flex-col items-center gap-2">
-                    <Upload className="w-8 h-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">{proofImage ? proofImage.name : "اضغط لرفع صورة إثبات الدفع"}</span>
-                  </label>
+              {paymentMethod && paymentDetails[paymentMethod]?.isOnline && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-right space-y-2">
+                  <div className="flex items-center gap-3">
+                    <img src={paymentDetails[paymentMethod].icon} alt={paymentDetails[paymentMethod].name} className="w-8 h-8 rounded-full" />
+                    <h3 className="font-semibold text-green-900">{paymentDetails[paymentMethod].name}</h3>
+                  </div>
+                  <p className="text-sm text-green-800 whitespace-pre-line">{paymentDetails[paymentMethod].note}</p>
                 </div>
-              </div>
+              )}
+              {paymentMethod && !paymentDetails[paymentMethod]?.isOnline && (
+                <div className="space-y-2">
+                  <Label htmlFor="proof">إثبات الدفع (صورة)</Label>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
+                    <Input id="proof" type="file" accept="image/*" onChange={(e) => setProofImage(e.target.files?.[0] || null)} className="hidden" required />
+                    <label htmlFor="proof" className="cursor-pointer flex flex-col items-center gap-2">
+                      <Upload className="w-8 h-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">{proofImage ? proofImage.name : "اضغط لرفع صورة إثبات الدفع"}</span>
+                    </label>
+                  </div>
+                </div>
+              )}
               <Button type="submit" className="w-full bg-gradient-to-r from-primary to-primary-light" disabled={loading}>
-                {loading ? "..." : t('deposit.submit')}
+                {loading ? "..." : paymentMethod === 'paymob' ? 'الانتقال للدفع' : t('deposit.submit')}
               </Button>
             </form>
           </CardContent>

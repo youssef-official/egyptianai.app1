@@ -521,6 +521,50 @@ export type Database = {
         }
         Relationships: []
       }
+      loan_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          id: string
+          id_card_image_url: string
+          phone: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          id_card_image_url: string
+          phone: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          id_card_image_url?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_departments: {
         Row: {
           created_at: string
@@ -544,6 +588,118 @@ export type Database = {
           name_en?: string
         }
         Relationships: []
+      }
+      medical_info: {
+        Row: {
+          age: number | null
+          chronic_diseases: string | null
+          created_at: string
+          gender: string | null
+          heart_disease: boolean | null
+          id: string
+          other_conditions: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          chronic_diseases?: string | null
+          created_at?: string
+          gender?: string | null
+          heart_disease?: boolean | null
+          id?: string
+          other_conditions?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          chronic_diseases?: string | null
+          created_at?: string
+          gender?: string | null
+          heart_disease?: boolean | null
+          id?: string
+          other_conditions?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_info_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_reports: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          diagnosis: string | null
+          doctor_id: string
+          hospital_id: string
+          id: string
+          patient_id: string
+          report_content: string
+          treatment: string | null
+          updated_at: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_id: string
+          hospital_id: string
+          id?: string
+          patient_id: string
+          report_content: string
+          treatment?: string | null
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_id?: string
+          hospital_id?: string
+          id?: string
+          patient_id?: string
+          report_content?: string
+          treatment?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_reports_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_reports_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "hospital_doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_reports_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_reports_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

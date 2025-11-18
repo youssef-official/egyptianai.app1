@@ -28,6 +28,9 @@ const HospitalDoctorAuth = lazy(() => import("./pages/HospitalDoctorAuth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Analyze = lazy(() => import("./pages/analyze"));
 const Volunteer = lazy(() => import("./pages/volunteer"));
+const MedicalInfo = lazy(() => import("./pages/MedicalInfo"));
+const LoanRequest = lazy(() => import("./pages/LoanRequest"));
+const SystemUser = lazy(() => import("./pages/SystemUser"));
 
 const queryClient = new QueryClient();
 
@@ -60,6 +63,9 @@ const App = () => (
             <Route path="/hospital-doctor-dashboard" element={<HospitalDoctorDashboard />} />
             <Route path="/analyze" element={<Analyze />} />
             <Route path="/volunteer" element={<Volunteer />} />
+            <Route path="/medical-info" element={<MedicalInfo />} />
+            <Route path="/loan-request" element={<LoanRequest />} />
+            <Route path="/system-user" element={<SystemUser />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
