@@ -36,6 +36,10 @@ const HospitalDashboard = () => {
   const [offlineDoctor, setOfflineDoctor] = useState("");
   const [offlinePrice, setOfflinePrice] = useState("");
 
+  // Patient data extraction states
+  const [searchEmail, setSearchEmail] = useState("");
+  const [patientData, setPatientData] = useState<any>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -262,6 +266,59 @@ const HospitalDashboard = () => {
     }
   };
 
+  const searchPatientData = async () => {
+    if (!searchEmail) {
+      toast.error("يرجى إدخال البريد الإلكتروني");
+      return;
+    }
+
+    try {
+      // Get profile by email
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", searchEmail)
+        .single();
+
+      if (profileError || !profile) {
+        toast.error("لم يتم العثور على المستخدم");
+        return;
+      }
+
+      // Get medical info
+      const { data: medicalInfo } = await supabase
+        .from("medical_info")
+        .select("*")
+        .eq("user_id", profile.id)
+        .maybeSingle();
+
+      // Get hospital bookings
+      const { data: bookings } = await supabase
+        .from("hospital_bookings")
+        .select("*, hospitals(name)")
+        .eq("user_id", profile.id)
+        .order("created_at", { ascending: false });
+
+      // Get medical reports
+      const { data: reports } = await supabase
+        .from("medical_reports")
+        .select("*, hospital_doctors(doctor_name, specialization), hospitals(name)")
+        .eq("patient_id", profile.id)
+        .order("created_at", { ascending: false });
+
+      setPatientData({
+        profile,
+        medicalInfo,
+        bookings: bookings || [],
+        reports: reports || []
+      });
+
+      toast.success("تم استخراج البيانات بنجاح");
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
   }
@@ -283,7 +340,7 @@ const HospitalDashboard = () => {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-4">
-          <TabsList><TabsTrigger value="bookings">الحجوزات</TabsTrigger><TabsTrigger value="add-booking">إضافة حجز</TabsTrigger><TabsTrigger value="doctors">الأطباء</TabsTrigger></TabsList>
+          <TabsList><TabsTrigger value="bookings">الحجوزات</TabsTrigger><TabsTrigger value="add-booking">إضافة حجز</TabsTrigger><TabsTrigger value="doctors">الأطباء</TabsTrigger><TabsTrigger value="patient-data">استخراج بيانات مريض</TabsTrigger></TabsList>
 
           <TabsContent value="bookings" className="space-y-4">
             <Card className="rounded-3xl"><CardHeader><CardTitle>آخر الحجوزات</CardTitle></CardHeader><CardContent className="grid gap-4">

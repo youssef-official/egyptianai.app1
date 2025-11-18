@@ -176,13 +176,19 @@ const Wallet = () => {
                 </div>
                 <div className="absolute inset-0 rounded-full" style={{ background: 'conic-gradient(var(--primary) 360deg, transparent 0)' }} />
               </div>
-              {/* Action buttons - three in a row */}
-              <div className="flex-1 grid grid-cols-3 gap-3">
+              {/* Action buttons - four in a row */}
+              <div className="flex-1 grid grid-cols-2 gap-3">
                 <div className="flex flex-col items-center">
                   <Button onClick={handleDepositClick} className="rounded-full h-12 w-12 flex items-center justify-center shadow-medium bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white">
                     <Plus className="w-5 h-5" />
                   </Button>
                   <span className="text-xs mt-2">{t('common.deposit')}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <Button onClick={() => navigate('/loan-request')} variant="outline" className="rounded-full h-12 w-12 flex items-center justify-center bg-white">
+                    <TrendingUp className="w-5 h-5" />
+                  </Button>
+                  <span className="text-xs mt-2">استلاف</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Button onClick={() => navigate('/transfer')} variant="outline" className="rounded-full h-12 w-12 flex items-center justify-center bg-white">
