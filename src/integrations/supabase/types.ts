@@ -473,8 +473,47 @@ export type Database = {
           },
         ]
       }
+      hospital_withdrawal_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          hospital_id: string
+          id: string
+          status: Database["public"]["Enums"]["request_status"]
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          hospital_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["request_status"]
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          hospital_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["request_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospital_withdrawal_requests_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hospitals: {
         Row: {
+          balance: number
           created_at: string
           email: string
           id: string
@@ -490,6 +529,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          balance?: number
           created_at?: string
           email: string
           id?: string
@@ -505,6 +545,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          balance?: number
           created_at?: string
           email?: string
           id?: string

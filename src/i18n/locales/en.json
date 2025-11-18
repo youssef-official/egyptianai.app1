@@ -55,7 +55,59 @@
     "buy": "Buy",
     "swap": "Swap",
     "send": "Send",
-    "deposit": "Deposit"
+    "deposit": "Deposit",
+    "loan": "Loan"
+  },
+  "deposit": {
+    "depositType": "Deposit Type",
+    "instantDeposit": "Instant Deposit",
+    "standardDeposit": "Standard Deposit",
+    "instantDepositDesc": "Instant deposit with 3 EGP + 3% fees",
+    "standardDepositDesc": "Deposit without fees (needs review)",
+    "selectPaymentMethod": "Select Payment Method",
+    "payWithWallet": "Pay with Wallet",
+    "payWithPayPal": "Pay with PayPal",
+    "payWithCard": "Pay with Credit Card",
+    "totalAmount": "Total Amount",
+    "fees": "Fees",
+    "originalAmount": "Original Amount",
+    "payNow": "Pay Now",
+    "depositSuccess": "Deposit Successful!",
+    "depositSuccessDesc": "Congratulations! {amount} EGP has been deposited to your account"
+  },
+  "hospital": {
+    "dashboard": "Hospital Dashboard",
+    "balance": "Balance",
+    "withdraw": "Withdraw Balance",
+    "withdrawAmount": "Withdrawal Amount",
+    "submitWithdrawal": "Submit Withdrawal",
+    "withdrawalRequests": "Withdrawal Requests",
+    "withdrawalSuccess": "Withdrawal request submitted successfully",
+    "patientData": "Patient Data",
+    "extractPatientData": "Extract Patient Data",
+    "searchByEmail": "Search by Email",
+    "searchByUserId": "Search by User ID",
+    "patientInfo": "Patient Information",
+    "medicalHistory": "Medical History",
+    "bookingHistory": "Booking History",
+    "medicalReports": "Medical Reports"
+  },
+  "doctor": {
+    "writeReport": "Write Report",
+    "reportContent": "Report Content",
+    "diagnosis": "Diagnosis",
+    "treatment": "Treatment",
+    "submitReport": "Submit Report",
+    "reportSuccess": "Report submitted successfully",
+    "patientReports": "Patient Reports"
+  },
+  "admin": {
+    "hospitalWithdrawals": "Hospital Withdrawals",
+    "approveWithdrawal": "Approve Withdrawal",
+    "rejectWithdrawal": "Reject Withdrawal",
+    "hospitalName": "Hospital Name",
+    "withdrawalAmount": "Withdrawal Amount",
+    "requestDate": "Request Date"
   },
   "search": {
     "searchById": "Search by ID",
@@ -72,6 +124,14 @@
     "edit": "Edit",
     "close": "Close",
     "confirm": "Confirm",
-    "language": "Language"
+    "language": "Language",
+    "status": "Status",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "actions": "Actions",
+    "notes": "Notes",
+    "date": "Date",
+    "amount": "Amount"
   }
 }

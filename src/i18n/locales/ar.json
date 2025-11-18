@@ -55,7 +55,59 @@
     "buy": "شراء",
     "swap": "تبديل",
     "send": "إرسال",
-    "deposit": "إيداع"
+    "deposit": "إيداع",
+    "loan": "استلاف"
+  },
+  "deposit": {
+    "depositType": "نوع الإيداع",
+    "instantDeposit": "إيداع فوري",
+    "standardDeposit": "إيداع عادي",
+    "instantDepositDesc": "إيداع فوري برسوم 3 جنيه + 3%",
+    "standardDepositDesc": "إيداع بدون رسوم (يحتاج مراجعة)",
+    "selectPaymentMethod": "اختر طريقة الدفع",
+    "payWithWallet": "الدفع بالمحفظة",
+    "payWithPayPal": "الدفع بـ PayPal",
+    "payWithCard": "الدفع بالبطاقة البنكية",
+    "totalAmount": "المبلغ الإجمالي",
+    "fees": "الرسوم",
+    "originalAmount": "المبلغ الأصلي",
+    "payNow": "ادفع الآن",
+    "depositSuccess": "تم الإيداع بنجاح!",
+    "depositSuccessDesc": "تهانينا! تم إيداع {amount} جنيه في حسابك"
+  },
+  "hospital": {
+    "dashboard": "لوحة تحكم المستشفى",
+    "balance": "الرصيد",
+    "withdraw": "سحب الرصيد",
+    "withdrawAmount": "مبلغ السحب",
+    "submitWithdrawal": "طلب السحب",
+    "withdrawalRequests": "طلبات السحب",
+    "withdrawalSuccess": "تم إرسال طلب السحب بنجاح",
+    "patientData": "بيانات المريض",
+    "extractPatientData": "استخراج بيانات مريض",
+    "searchByEmail": "البحث بالبريد الإلكتروني",
+    "searchByUserId": "البحث بمعرف المستخدم",
+    "patientInfo": "معلومات المريض",
+    "medicalHistory": "السجل الطبي",
+    "bookingHistory": "سجل الحجوزات",
+    "medicalReports": "التقارير الطبية"
+  },
+  "doctor": {
+    "writeReport": "كتابة تقرير",
+    "reportContent": "محتوى التقرير",
+    "diagnosis": "التشخيص",
+    "treatment": "العلاج",
+    "submitReport": "إرسال التقرير",
+    "reportSuccess": "تم إرسال التقرير بنجاح",
+    "patientReports": "تقارير المريض"
+  },
+  "admin": {
+    "hospitalWithdrawals": "سحب المستشفيات",
+    "approveWithdrawal": "الموافقة على السحب",
+    "rejectWithdrawal": "رفض السحب",
+    "hospitalName": "اسم المستشفى",
+    "withdrawalAmount": "مبلغ السحب",
+    "requestDate": "تاريخ الطلب"
   },
   "search": {
     "searchById": "البحث بالمعرف",
@@ -72,6 +124,14 @@
     "edit": "تعديل",
     "close": "إغلاق",
     "confirm": "تأكيد",
-    "language": "اللغة"
+    "language": "اللغة",
+    "status": "الحالة",
+    "pending": "قيد الانتظار",
+    "approved": "موافق عليه",
+    "rejected": "مرفوض",
+    "actions": "الإجراءات",
+    "notes": "ملاحظات",
+    "date": "التاريخ",
+    "amount": "المبلغ"
   }
 }
