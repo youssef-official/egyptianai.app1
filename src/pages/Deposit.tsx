@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Copy, ArrowRight } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Upload, Copy, ArrowRight, CreditCard, Wallet, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 
@@ -36,17 +37,13 @@ const paymentDetails: any = {
     number: "5484460473322410",
     note: "حوّل المبلغ عبر تطبيق Instapay إلى رقم البطاقة الموضح.\nاسم حامل البطاقة: YOUSSEF ELSAYED",
   },
-  paymob: {
-    name: "الدفع ببطاقة بنكية / PayPal",
-    icon: "https://cdn.paymob.com/media/paymob_logo.png",
-    note: "سيتم تحويلك إلى صفحة الدفع الآمنة لإتمام العملية",
-    isOnline: true
-  },
 };
 
 const Deposit = () => {
   const [amount, setAmount] = useState("");
+  const [depositType, setDepositType] = useState<"instant" | "standard">("instant");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymobMethod, setPaymobMethod] = useState<"wallet" | "paypal" | "card">("card");
   const [proofImage, setProofImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
