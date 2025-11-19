@@ -51,7 +51,7 @@ const HospitalDashboard = () => {
     try {
       const sessionData = localStorage.getItem("hospitalSession");
       if (!sessionData) {
-        navigate("/hospital-auth");
+        navigate("/login-hospital");
         return;
       }
 
@@ -63,7 +63,7 @@ const HospitalDashboard = () => {
         .single();
 
       if (!hospitalData) {
-        navigate("/hospital-auth");
+        navigate("/login-hospital");
         return;
       }
 
@@ -93,7 +93,7 @@ const HospitalDashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("hospitalSession");
-    navigate("/hospital-auth");
+    navigate("/login-hospital");
   };
 
   const printBookingReceipt = (booking: any) => {
