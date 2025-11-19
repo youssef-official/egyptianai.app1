@@ -17,9 +17,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+import { AdminHospitalWithdrawals } from "@/components/AdminHospitalWithdrawals";
+
 const AdminDashboard = () => {
   const [depositRequests, setDepositRequests] = useState<any[]>([]);
   const [withdrawRequests, setWithdrawRequests] = useState<any[]>([]);
+  const [hospitalWithdrawRequests, setHospitalWithdrawRequests] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [doctorRequests, setDoctorRequests] = useState<any[]>([]);
@@ -81,6 +84,11 @@ const AdminDashboard = () => {
     const { data: withdraws } = await supabase
       .from("withdraw_requests")
       .select("*, doctors(doctor_name, user_id, phone_number, image_url)")
+      .order("created_at", { ascending: false });
+
+    const { data: hospitalWithdraws } = await supabase
+      .from("hospital_withdrawal_requests")
+      .select("*, hospitals(name, email, phone, logo_url)")
       .order("created_at", { ascending: false });
 
     const { data: usersData } = await supabase
@@ -922,9 +930,10 @@ const AdminDashboard = () => {
         </Card>
 
         <Tabs defaultValue="deposits" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10">
             <TabsTrigger value="deposits">الإيداع</TabsTrigger>
             <TabsTrigger value="withdrawals">السحب</TabsTrigger>
+            <TabsTrigger value="hospital-withdrawals">سحب المستشفيات</TabsTrigger>
             <TabsTrigger value="doctor-requests">طلبات الأطباء</TabsTrigger>
             <TabsTrigger value="hospital-requests">طلبات المستشفيات</TabsTrigger>
             <TabsTrigger value="active-doctors">الطلبات النشطة</TabsTrigger>
@@ -1115,6 +1124,15 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="hospital-withdrawals" className="space-y-4">
+            <AdminHospitalWithdrawals
+              withdrawals={hospitalWithdrawRequests}
+              adminNotes={adminNotes}
+              setAdminNotes={setAdminNotes}
+              onUpdate={loadData}
+            />
           </TabsContent>
 
           <TabsContent value="deposits" className="space-y-4">

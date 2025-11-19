@@ -79,31 +79,43 @@ const HospitalAuth = () => {
             return;
           }
 
-          // Fallback: if hospital record is missing but request is approved, create it now
-          const { data: approvedReq } = await supabase
+          // Fallback: check if hospital request exists
+          const { data: pendingReq } = await supabase
             .from('hospital_requests')
             .select('*')
             .eq('user_id', data.user.id)
-            .eq('status', 'approved')
-            .maybeSingle();
+            .single();
 
-          if (approvedReq) {
-            const { error: createHospitalError } = await supabase
-              .from('hospitals')
-              .insert({
-                user_id: data.user.id,
-                name: approvedReq.hospital_name,
-                email: approvedReq.email,
-                phone: approvedReq.phone,
-                logo_url: approvedReq.logo_url || null,
-                is_approved: true,
-                is_active: true,
+          if (pendingReq) {
+            if (pendingReq.status === 'pending') {
+              toast({
+                title: "في انتظار الموافقة",
+                description: "طلبك قيد المراجعة من قبل الإدارة",
               });
-
-            if (!createHospitalError) {
-              toast({ title: "تم تفعيل حساب المستشفى", description: "تم إنشاء ملف المستشفى تلقائياً" });
-              navigate('/hospital-dashboard');
+              navigate("/hospital-pending");
               return;
+            } else if (pendingReq.status === 'approved') {
+              // Create hospital record if approved but not created
+              const { error: createError } = await supabase
+                .from('hospitals')
+                .insert({
+                  user_id: data.user.id,
+                  name: pendingReq.hospital_name,
+                  email: pendingReq.email,
+                  phone: pendingReq.phone,
+                  logo_url: pendingReq.logo_url,
+                  is_approved: true,
+                  is_active: true,
+                });
+              
+              if (!createError) {
+                toast({ 
+                  title: "تم تفعيل الحساب", 
+                  description: "تم إنشاء ملف المستشفى بنجاح" 
+                });
+                navigate('/hospital-dashboard');
+                return;
+              }
             }
           }
 
