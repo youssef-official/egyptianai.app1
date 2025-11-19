@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Building2, Users, Calendar, DollarSign, Plus, LogOut, Printer, Edit, Eye, EyeOff } from "lucide-react";
+import { HospitalBalanceCard } from "@/components/HospitalBalanceCard";
 
 type HospitalStatus = "empty" | "low_traffic" | "medium_traffic" | "high_traffic" | "very_crowded";
 

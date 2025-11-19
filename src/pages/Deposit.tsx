@@ -41,11 +41,20 @@ const paymentDetails: any = {
 
 const Deposit = () => {
   const [amount, setAmount] = useState("");
-  const [depositType, setDepositType] = useState<"instant" | "standard">("instant");
+  const [depositType, setDepositType] = useState<"instant" | "standard">("standard");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymobMethod, setPaymobMethod] = useState<"wallet" | "paypal" | "card">("card");
   const [proofImage, setProofImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // حساب المبلغ النهائي مع العمولة
+  const calculateFinalAmount = () => {
+    const baseAmount = parseFloat(amount) || 0;
+    if (depositType === "instant" && paymentMethod === "paymob") {
+      return baseAmount + 3 + (baseAmount * 0.03);
+    }
+    return baseAmount;
+  };
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -77,10 +86,12 @@ const Deposit = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
 
+        const finalAmount = calculateFinalAmount();
+        
         const { data, error } = await supabase.functions.invoke('paymob-payment', {
           body: {
-            amount: parseFloat(amount),
-            paymentMethod: 'card',
+            amount: finalAmount,
+            paymentMethod: paymobMethod,
             userId: user.id
           }
         });
@@ -91,7 +102,7 @@ const Deposit = () => {
           window.open(data.iframeUrl, '_blank');
           toast({ 
             title: "جاري التحويل", 
-            description: "سيتم فتح صفحة الدفع في نافذة جديدة" 
+            description: `المبلغ النهائي: ${finalAmount.toFixed(2)} جنيه (شامل الرسوم)` 
           });
         }
       } catch (error: any) {
@@ -173,6 +184,30 @@ const Deposit = () => {
               <div className="space-y-2">
                 <Label htmlFor="amount">{t('deposit.amountPts')}</Label>
                 <Input id="amount" type="number" min="1" step="1" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="100" required className="text-right" />
+                {amount && parseFloat(amount) > 0 && depositType === "instant" && paymentMethod === "paymob" && (
+                  <p className="text-sm text-muted-foreground text-right">
+                    المبلغ النهائي: {calculateFinalAmount().toFixed(2)} جنيه (شامل رسوم 3 جنيه + 3%)
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>نوع الإيداع</Label>
+                <RadioGroup value={depositType} onValueChange={(v) => setDepositType(v as any)}>
+                  <div className="flex items-center justify-between p-3 border rounded-md">
+                    <Label htmlFor="instant" className="flex-1 cursor-pointer">
+                      <div className="font-semibold">إيداع فوري</div>
+                      <div className="text-sm text-muted-foreground">رسوم: 3 جنيه + 3% من المبلغ</div>
+                    </Label>
+                    <RadioGroupItem value="instant" id="instant" />
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-md">
+                    <Label htmlFor="standard" className="flex-1 cursor-pointer">
+                      <div className="font-semibold">إيداع عادي</div>
+                      <div className="text-sm text-muted-foreground">بدون رسوم - يحتاج مراجعة</div>
+                    </Label>
+                    <RadioGroupItem value="standard" id="standard" />
+                  </div>
+                </RadioGroup>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="method">طريقة الدفع</Label>
@@ -181,15 +216,39 @@ const Deposit = () => {
                     <SelectValue placeholder="اختر طريقة الدفع..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="vodafone">Vodafone Cash</SelectItem>
-                    <SelectItem value="etisalat">Etisalat Cash</SelectItem>
-                    <SelectItem value="telda">Telda</SelectItem>
-                    <SelectItem value="instapay">InstaPay</SelectItem>
-                    <SelectItem value="paymob">بطاقة بنكية / PayPal (Paymob)</SelectItem>
+                    {depositType === "instant" ? (
+                      <SelectItem value="paymob">Paymob (بطاقة بنكية / محفظة / PayPal)</SelectItem>
+                    ) : (
+                      <>
+                        <SelectItem value="vodafone">Vodafone Cash</SelectItem>
+                        <SelectItem value="etisalat">Etisalat Cash</SelectItem>
+                        <SelectItem value="telda">Telda</SelectItem>
+                        <SelectItem value="instapay">InstaPay</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
-              {paymentMethod && !paymentDetails[paymentMethod]?.isOnline && (
+              {paymentMethod === "paymob" && depositType === "instant" && (
+                <div className="space-y-2">
+                  <Label>طريقة الدفع عبر Paymob</Label>
+                  <RadioGroup value={paymobMethod} onValueChange={(v) => setPaymobMethod(v as any)}>
+                    <div className="flex items-center space-x-2 space-x-reverse">
+                      <RadioGroupItem value="card" id="card" />
+                      <Label htmlFor="card" className="cursor-pointer">بطاقة بنكية</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 space-x-reverse">
+                      <RadioGroupItem value="wallet" id="wallet" />
+                      <Label htmlFor="wallet" className="cursor-pointer">محفظة إلكترونية</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 space-x-reverse">
+                      <RadioGroupItem value="paypal" id="paypal" />
+                      <Label htmlFor="paypal" className="cursor-pointer">PayPal</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
+              {paymentMethod && paymentMethod !== "paymob" && paymentDetails[paymentMethod] && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-right space-y-2">
                   <div className="flex items-center gap-3">
                     <img src={paymentDetails[paymentMethod].icon} alt={paymentDetails[paymentMethod].name} className="w-8 h-8 rounded-full" />
@@ -204,16 +263,7 @@ const Deposit = () => {
                   <p className="text-sm text-blue-800 whitespace-pre-line">{paymentDetails[paymentMethod].note}</p>
                 </div>
               )}
-              {paymentMethod && paymentDetails[paymentMethod]?.isOnline && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-right space-y-2">
-                  <div className="flex items-center gap-3">
-                    <img src={paymentDetails[paymentMethod].icon} alt={paymentDetails[paymentMethod].name} className="w-8 h-8 rounded-full" />
-                    <h3 className="font-semibold text-green-900">{paymentDetails[paymentMethod].name}</h3>
-                  </div>
-                  <p className="text-sm text-green-800 whitespace-pre-line">{paymentDetails[paymentMethod].note}</p>
-                </div>
-              )}
-              {paymentMethod && !paymentDetails[paymentMethod]?.isOnline && (
+              {paymentMethod && paymentMethod !== "paymob" && depositType === "standard" && (
                 <div className="space-y-2">
                   <Label htmlFor="proof">إثبات الدفع (صورة)</Label>
                   <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
@@ -226,7 +276,7 @@ const Deposit = () => {
                 </div>
               )}
               <Button type="submit" className="w-full bg-gradient-to-r from-primary to-primary-light" disabled={loading}>
-                {loading ? "..." : paymentMethod === 'paymob' ? 'الانتقال للدفع' : t('deposit.submit')}
+                {loading ? "..." : (paymentMethod === 'paymob' && depositType === 'instant') ? 'الانتقال للدفع' : t('deposit.submit')}
               </Button>
             </form>
           </CardContent>

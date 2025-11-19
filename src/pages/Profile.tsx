@@ -11,6 +11,7 @@ import { ArrowLeft, Upload, Copy, Check, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import BottomNav from "@/components/BottomNav";
 import verifiedBadge from "@/assets/verified-badge.png";
+import { LanguageThemeSettings } from "@/components/LanguageThemeSettings";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -335,6 +336,9 @@ const Profile = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Language and Theme Settings */}
+        <LanguageThemeSettings />
       </div>
       <BottomNav />
     </div>

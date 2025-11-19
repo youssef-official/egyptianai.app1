@@ -31,6 +31,7 @@ const Volunteer = lazy(() => import("./pages/volunteer"));
 const MedicalInfo = lazy(() => import("./pages/MedicalInfo"));
 const LoanRequest = lazy(() => import("./pages/LoanRequest"));
 const SystemUser = lazy(() => import("./pages/SystemUser"));
+const Landing = lazy(() => import("./pages/Landing"));
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,8 @@ const App = () => (
       <BrowserRouter>
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/wallet" element={<Wallet />} />
