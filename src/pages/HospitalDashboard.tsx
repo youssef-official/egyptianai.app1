@@ -335,6 +335,12 @@ const HospitalDashboard = () => {
           <Button onClick={handleLogout} variant="outline" className="gap-2"><LogOut className="w-4 h-4" />تسجيل الخروج</Button>
         </div>
 
+        <HospitalBalanceCard
+          balance={hospital?.balance ?? 0}
+          hospitalId={hospital.id}
+          onWithdrawalSuccess={loadHospitalData}
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="rounded-2xl"><CardContent className="p-6"><Users className="w-8 h-8 text-primary mb-2" /><p className="text-2xl font-bold">{doctors.length}</p><p className="text-sm text-muted-foreground">الأطباء</p></CardContent></Card>
           <Card className="rounded-2xl"><CardContent className="p-6"><Calendar className="w-8 h-8 text-primary mb-2" /><p className="text-2xl font-bold">{bookings.length}</p><p className="text-sm text-muted-foreground">إجمالي الحجوزات</p></CardContent></Card>
