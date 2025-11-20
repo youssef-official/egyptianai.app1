@@ -57,6 +57,7 @@ const App = () => (
             <Route path="/ai-chat" element={<AIChat />} />
             <Route path="/doctor-application" element={<DoctorApplication />} />
             <Route path="/login-hospital" element={<HospitalAuth />} />
+            <Route path="/hospital-auth" element={<HospitalAuth />} />
             <Route path="/hospital-pending" element={<HospitalPending />} />
             <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
             <Route path="/hospital-selection" element={<HospitalSelection />} />
