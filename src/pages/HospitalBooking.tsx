@@ -117,9 +117,16 @@ const HospitalBooking = () => {
     setSubmitting(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("يجب تسجيل الدخول أولاً");
+        navigate("/auth");
+        return;
+      }
+
       const doctor = doctors.find((d) => d.id === selectedDoctor);
-      
-      const { error } = await supabase
+
+      const { data: booking, error } = await supabase
         .from("hospital_bookings")
         .insert({
           hospital_id: hospitalId,
@@ -131,11 +138,15 @@ const HospitalBooking = () => {
           patient_area: patientArea || null,
           price: doctor?.consultation_price || 0,
           status: "pending",
-        });
+          is_paid: false,
+          user_id: user.id,
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      toast.success("تم إرسال طلب الحجز بنجاح! سيتم التواصل معك قريباً.");
+      toast.success(`تم إرسال طلب الحجز بنجاح. كود الحجز: ${booking.id}`);
       setSelectedDoctor("");
       setPatientName("");
       setPatientPhone("");
