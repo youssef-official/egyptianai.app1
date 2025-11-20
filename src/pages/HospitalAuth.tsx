@@ -46,22 +46,28 @@ const HospitalAuth = () => {
             .single();
 
           if (hospital) {
-            if (!hospital.is_approved) {
-              toast({
-                title: "في انتظار الموافقة",
-                description: "حسابك قيد المراجعة من قبل الإدارة",
-              });
-              navigate("/hospital-pending");
-              return;
-            }
-
-            toast({
-              title: "مرحباً بعودتك!",
-              description: "تم تسجيل الدخول بنجاح",
-            });
-            navigate("/hospital-dashboard");
-            return;
-          }
+             if (!hospital.is_approved) {
+               toast({
+                 title: "في انتظار الموافقة",
+                 description: "حسابك قيد المراجعة من قبل الإدارة",
+               });
+               navigate("/hospital-pending");
+               return;
+             }
+ 
+             // تخزين جلسة المستشفى في localStorage لاستخدامها في لوحة التحكم
+             localStorage.setItem(
+               "hospitalSession",
+               JSON.stringify({ hospitalId: hospital.id })
+             );
+ 
+             toast({
+               title: "مرحباً بعودتك!",
+               description: "تم تسجيل الدخول بنجاح",
+             });
+             navigate("/hospital-dashboard");
+             return;
+           }
 
           const { data: hospitalDoctor } = await supabase
             .from("hospital_doctors")
@@ -88,35 +94,43 @@ const HospitalAuth = () => {
 
           if (pendingReq) {
             if (pendingReq.status === 'pending') {
-              toast({
-                title: "في انتظار الموافقة",
-                description: "طلبك قيد المراجعة من قبل الإدارة",
-              });
-              navigate("/hospital-pending");
-              return;
-            } else if (pendingReq.status === 'approved') {
-              // Create hospital record if approved but not created
-              const { error: createError } = await supabase
-                .from('hospitals')
-                .insert({
-                  user_id: data.user.id,
-                  name: pendingReq.hospital_name,
-                  email: pendingReq.email,
-                  phone: pendingReq.phone,
-                  logo_url: pendingReq.logo_url,
-                  is_approved: true,
-                  is_active: true,
-                });
-              
-              if (!createError) {
-                toast({ 
-                  title: "تم تفعيل الحساب", 
-                  description: "تم إنشاء ملف المستشفى بنجاح" 
-                });
-                navigate('/hospital-dashboard');
-                return;
-              }
-            }
+               toast({
+                 title: "في انتظار الموافقة",
+                 description: "طلبك قيد المراجعة من قبل الإدارة",
+               });
+               navigate("/hospital-pending");
+               return;
+             } else if (pendingReq.status === 'approved') {
+               // إنشاء سجل المستشفى إذا تم قبول الطلب ولم يتم إنشاء المستشفى بعد
+               const { data: newHospital, error: createError } = await supabase
+                 .from('hospitals')
+                 .insert({
+                   user_id: data.user.id,
+                   name: pendingReq.hospital_name,
+                   email: pendingReq.email,
+                   phone: pendingReq.phone,
+                   logo_url: pendingReq.logo_url,
+                   is_approved: true,
+                   is_active: true,
+                 })
+                 .select()
+                 .single();
+               
+               if (!createError && newHospital) {
+                 // تخزين جلسة المستشفى الجديدة
+                 localStorage.setItem(
+                   "hospitalSession",
+                   JSON.stringify({ hospitalId: newHospital.id })
+                 );
+ 
+                 toast({ 
+                   title: "تم تفعيل الحساب", 
+                   description: "تم إنشاء ملف المستشفى بنجاح" 
+                 });
+                 navigate('/hospital-dashboard');
+                 return;
+               }
+             }
           }
 
           toast({
