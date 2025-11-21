@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { LogOut, Calendar, DollarSign } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DoctorReportForm } from "@/components/DoctorReportForm";
 
 const HospitalDoctorDashboard = () => {
   const [doctor, setDoctor] = useState<any>(null);
@@ -137,6 +139,7 @@ const HospitalDoctorDashboard = () => {
                   <TableHead>المنطقة</TableHead>
                   <TableHead>السعر</TableHead>
                   <TableHead>التاريخ</TableHead>
+                  <TableHead>إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -148,6 +151,28 @@ const HospitalDoctorDashboard = () => {
                     <TableCell>{booking.patient_area || "-"}</TableCell>
                     <TableCell>{booking.price} جنيه</TableCell>
                     <TableCell>{new Date(booking.created_at).toLocaleDateString('ar-EG')}</TableCell>
+                    <TableCell>
+                      {booking.user_id && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              كتابة تقرير
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl" dir="rtl">
+                            <DialogHeader>
+                              <DialogTitle>كتابة تقرير طبي</DialogTitle>
+                            </DialogHeader>
+                            <DoctorReportForm
+                              booking={booking}
+                              doctorId={doctor.id}
+                              hospitalId={doctor.hospital_id}
+                              onSuccess={loadDoctorData}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
