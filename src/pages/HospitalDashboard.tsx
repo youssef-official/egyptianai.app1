@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Building2, Users, Calendar, DollarSign, Plus, LogOut, Printer, Edit, Eye, EyeOff } from "lucide-react";
 import { HospitalBalanceCard } from "@/components/HospitalBalanceCard";
+import { PatientSearchSection } from "@/components/PatientSearchSection";
 
 type HospitalStatus = "empty" | "low_traffic" | "medium_traffic" | "high_traffic" | "very_crowded";
 
@@ -96,7 +97,18 @@ const HospitalDashboard = () => {
     navigate("/login-hospital");
   };
 
-  const printBookingReceipt = (booking: any) => {
+  const printBookingReceipt = async (booking: any) => {
+    // جلب البيانات الطبية للمريض
+    let medicalInfo = null;
+    if (booking.user_id) {
+      const { data } = await supabase
+        .from("medical_info")
+        .select("*")
+        .eq("user_id", booking.user_id)
+        .maybeSingle();
+      medicalInfo = data;
+    }
+
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
@@ -116,9 +128,12 @@ const HospitalDashboard = () => {
           .booking-code { text-align: center; margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 8px; color: white; }
           .booking-code-value { font-size: 32px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px; }
           .info-section { margin: 25px 0; padding: 20px; background: #f9fafb; border-radius: 8px; }
-          .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
+          .info-row { display: flex; justify-between; padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
           .label { font-weight: 600; color: #374151; }
           .value { color: #6b7280; }
+          .medical-section { margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 8px; border-top: 3px solid #f59e0b; }
+          .medical-section h3 { font-size: 16px; color: #92400e; margin-bottom: 15px; }
+          .medical-row { padding: 8px 0; font-size: 13px; }
           .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px dashed #e5e7eb; color: #9ca3af; font-size: 12px; }
           .powered-by { margin-top: 10px; font-size: 11px; color: #6b7280; }
         </style>
@@ -139,7 +154,18 @@ const HospitalDashboard = () => {
             <div class="info-row"><span class="label">الطبيب:</span><span class="value">${booking.doctor_name || "غير محدد"}</span></div>
             <div class="info-row"><span class="label">التخصص:</span><span class="value">${booking.specialization || "غير محدد"}</span></div>
             <div class="info-row"><span class="label">التكلفة:</span><span class="value">${booking.price} جنيه</span></div>
+            <div class="info-row"><span class="label">نوع الحجز:</span><span class="value">${booking.payment_method === "online" ? "🟢 أونلاين" : "⚪ أوفلاين"}</span></div>
           </div>
+          ${medicalInfo ? `
+            <div class="medical-section">
+              <h3>📋 المعلومات الطبية للمريض</h3>
+              <div class="medical-row"><strong>العمر:</strong> ${medicalInfo.age || "-"} سنة</div>
+              <div class="medical-row"><strong>الجنس:</strong> ${medicalInfo.gender === "male" ? "ذكر" : medicalInfo.gender === "female" ? "أنثى" : "-"}</div>
+              <div class="medical-row"><strong>أمراض مزمنة:</strong> ${medicalInfo.chronic_diseases || "لا يوجد"}</div>
+              <div class="medical-row"><strong>أمراض القلب:</strong> ${medicalInfo.heart_disease ? "نعم" : "لا"}</div>
+              ${medicalInfo.other_conditions ? `<div class="medical-row"><strong>حالات أخرى:</strong> ${medicalInfo.other_conditions}</div>` : ""}
+            </div>
+          ` : ""}
           <div class="footer">
             <p>شكراً لاختياركم ${hospital?.name || "مستشفانا"}</p>
             <p class="powered-by">تم صناعة النظام بواسطة - Cura Verse</p>
@@ -347,7 +373,7 @@ const HospitalDashboard = () => {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-4">
-          <TabsList><TabsTrigger value="bookings">الحجوزات</TabsTrigger><TabsTrigger value="add-booking">إضافة حجز</TabsTrigger><TabsTrigger value="doctors">الأطباء</TabsTrigger><TabsTrigger value="patient-data">استخراج بيانات مريض</TabsTrigger></TabsList>
+          <TabsList><TabsTrigger value="bookings">الحجوزات</TabsTrigger><TabsTrigger value="add-booking">إضافة حجز</TabsTrigger><TabsTrigger value="doctors">الأطباء</TabsTrigger><TabsTrigger value="reports">التقارير</TabsTrigger></TabsList>
 
           <TabsContent value="bookings" className="space-y-4">
             <Card className="rounded-3xl"><CardHeader><CardTitle>آخر الحجوزات</CardTitle></CardHeader><CardContent className="grid gap-4">
@@ -411,6 +437,10 @@ const HospitalDashboard = () => {
                 </div>
               ))}
             </CardContent></Card>
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <PatientSearchSection />
           </TabsContent>
         </Tabs>
       </div>
