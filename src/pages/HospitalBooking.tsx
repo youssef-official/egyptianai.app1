@@ -125,6 +125,7 @@ const HospitalBooking = () => {
       }
 
       const doctor = doctors.find((d) => d.id === selectedDoctor);
+      const bookingPrice = doctor?.consultation_price || 0;
 
       const { data: booking, error } = await supabase
         .from("hospital_bookings")
@@ -136,9 +137,10 @@ const HospitalBooking = () => {
           patient_name: patientName,
           patient_phone: patientPhone,
           patient_area: patientArea || null,
-          price: doctor?.consultation_price || 0,
-          status: "pending",
-          is_paid: false,
+          price: bookingPrice,
+          status: "confirmed",
+          is_paid: true,
+          payment_method: "online",
           user_id: user.id,
         })
         .select()
@@ -146,7 +148,21 @@ const HospitalBooking = () => {
 
       if (error) throw error;
 
-      toast.success(`تم إرسال طلب الحجز بنجاح. كود الحجز: ${booking.id}`);
+      // زيادة رصيد المستشفى (الحجوزات الأونلاين فقط)
+      const { data: currentHospital } = await supabase
+        .from("hospitals")
+        .select("balance")
+        .eq("id", hospitalId)
+        .single();
+
+      if (currentHospital) {
+        await supabase
+          .from("hospitals")
+          .update({ balance: currentHospital.balance + bookingPrice })
+          .eq("id", hospitalId);
+      }
+
+      toast.success(`تم الحجز بنجاح! رقم العملية: ${booking.id}`);
       setSelectedDoctor("");
       setPatientName("");
       setPatientPhone("");
