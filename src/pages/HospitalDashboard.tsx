@@ -220,7 +220,9 @@ const HospitalDashboard = () => {
     }
   };
 
-  const handleOnlineBooking = async () => {
+  const [onlineBookingDetails, setOnlineBookingDetails] = useState<any | null>(null);
+
+  const fetchOnlineBooking = async () => {
     if (!onlineBookingId.trim()) {
       toast.error("يرجى إدخال معرف الحجز");
       return;
@@ -236,18 +238,36 @@ const HospitalDashboard = () => {
 
       if (error || !booking) {
         toast.error("لم يتم العثور على الحجز");
+        setOnlineBookingDetails(null);
         return;
       }
 
-      const { error: updateError } = await supabase
+      setOnlineBookingDetails(booking);
+      toast.success("تم جلب بيانات الحجز");
+    } catch (error: any) {
+      toast.error(error.message || "حدث خطأ أثناء جلب الحجز");
+      setOnlineBookingDetails(null);
+    }
+  };
+
+  const handleOnlineBookingConfirm = async () => {
+    if (!onlineBookingId.trim()) {
+      toast.error("يرجى إدخال معرف الحجز");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
         .from("hospital_bookings")
         .update({ status: "confirmed", is_paid: true })
-        .eq("id", onlineBookingId.trim());
+        .eq("id", onlineBookingId.trim())
+        .eq("hospital_id", hospital.id);
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       toast.success("تم تأكيد الحجز بنجاح");
       setOnlineBookingId("");
+      setOnlineBookingDetails(null);
       loadHospitalData();
     } catch (error: any) {
       toast.error(error.message);
@@ -403,7 +423,33 @@ const HospitalDashboard = () => {
                 {bookingType === "online" ? (
                   <div className="space-y-4">
                     <div><Label>معرف الحجز</Label><Input value={onlineBookingId} onChange={(e) => setOnlineBookingId(e.target.value)} placeholder="أدخل معرف الحجز" /></div>
-                    <Button onClick={handleOnlineBooking} className="w-full">تأكيد الحجز</Button>
+                    <div className="flex gap-2">
+                      <Button onClick={fetchOnlineBooking} variant="outline" className="flex-1">
+                        استعلام عن الحجز
+                      </Button>
+                      <Button onClick={handleOnlineBookingConfirm} className="flex-1">
+                        تأكيد الحجز
+                      </Button>
+                    </div>
+                    {onlineBookingDetails && (
+                      <Card className="rounded-2xl border-dashed">
+                        <CardHeader>
+                          <CardTitle className="text-sm">بيانات الحجز</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-1 text-sm">
+                          <p><strong>المريض:</strong> {onlineBookingDetails.patient_name}</p>
+                          <p><strong>الهاتف:</strong> {onlineBookingDetails.patient_phone}</p>
+                          {onlineBookingDetails.patient_area && (
+                            <p><strong>المنطقة:</strong> {onlineBookingDetails.patient_area}</p>
+                          )}
+                          <p><strong>الطبيب:</strong> {onlineBookingDetails.doctor_name || "غير محدد"}</p>
+                          <p><strong>التخصص:</strong> {onlineBookingDetails.specialization || "غير محدد"}</p>
+                          <p><strong>السعر:</strong> {onlineBookingDetails.price} جنيه</p>
+                          <p><strong>الحالة الحالية:</strong> {onlineBookingDetails.status}</p>
+                        </CardContent>
+                      </Card>
+                    )}
+
                   </div>
                 ) : (
                   <div className="space-y-4">

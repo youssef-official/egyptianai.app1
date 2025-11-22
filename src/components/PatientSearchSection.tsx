@@ -20,16 +20,20 @@ export const PatientSearchSection = () => {
 
     setSearching(true);
     try {
+      const trimmed = searchEmail.trim();
+      // يمكن البحث إما بالبريد الإلكتروني أو بمعرّف المستخدم
+      const isEmail = trimmed.includes("@");
+
       // البحث عن المريض
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("email", searchEmail)
+        .eq(isEmail ? "email" : "id", trimmed)
         .maybeSingle();
 
       if (profileError) throw profileError;
       if (!profile) {
-        toast.error("لم يتم العثور على المريض");
+        toast.error("لم يتم العثور على المريض عن طريق البيانات المدخلة");
         setPatientData(null);
         return;
       }

@@ -27,6 +27,22 @@ type Tone = "success" | "info" | "danger" | "warning";
 
 type ToneKey = Tone | "default";
 
+// أنواع رسائل المنصة (تُستخدم من الواجهة الأمامية عبر sendTransactionalEmail)
+type EmailType =
+  | "welcome"
+  | "deposit_received"
+  | "deposit_approved"
+  | "deposit_rejected"
+  | "withdraw_received"
+  | "withdraw_approved"
+  | "withdraw_rejected"
+  | "doctor_request_received"
+  | "doctor_request_approved"
+  | "doctor_request_rejected"
+  | "transfer_sent"
+  | "transfer_received"
+  | "custom";
+
 interface Highlight {
   label: string;
   value: string;
@@ -388,8 +404,8 @@ function renderEmail(content: TemplateContent): string {
                 <p style="margin:6px 0; color:#1f2937;">فريق ${escapeHtml(COMPANY_NAME)}</p>
                 <p style="margin:8px 0 0; color:#64748b; font-size:13px;">للتواصل معنا: <a href="mailto:${escapeHtml(SUPPORT_EMAIL)}" style="color:${toneStyle.accent}; text-decoration:none; font-weight:600;">${escapeHtml(SUPPORT_EMAIL)}</a></p>
                 ${footerNoteHtml}
-              </td>
-            </tr>
+        </td>
+      </tr>
             <tr>
               <td style="padding:20px 32px 28px; text-align:center; background-color:#0f172a; color:#e2e8f0; font-size:12px;">
                 <p style="margin:0 0 8px;">© ${currentYear} ${escapeHtml(COMPANY_NAME)}. جميع الحقوق محفوظة.</p>

@@ -34,15 +34,20 @@ export const HospitalBalanceCard = ({ balance, hospitalId, onWithdrawalSuccess }
 
     setSubmitting(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("hospital_withdrawal_requests")
         .insert({
           hospital_id: hospitalId,
           amount: amount,
           status: "pending",
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+      if (!data) {
+        throw new Error("تعذر إنشاء طلب السحب، برجاء المحاولة مرة أخرى");
+      }
 
       toast.success("تم إرسال طلب السحب بنجاح");
       setDialogOpen(false);
