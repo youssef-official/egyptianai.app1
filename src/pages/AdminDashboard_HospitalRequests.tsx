@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, XCircle, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { sendTransactionalEmail } from "@/lib/email";
 
 export const HospitalRequestsTab = ({ 
   requests, 
@@ -30,6 +31,26 @@ export const HospitalRequestsTab = ({
         _notes: adminNotes[req.id] || null,
       });
       if (error) throw error;
+
+      // Send email to hospital owner
+      if (req.email) {
+        try {
+          await sendTransactionalEmail({
+            type: "custom",
+            to: req.email,
+            data: {
+              hero_badge_label: is_approved ? "تم قبول المستشفى" : "تم رفض الطلب",
+              hero_badge_tone: is_approved ? "success" : "danger",
+              custom_html: is_approved
+                ? `تم قبول مستشفاك <strong>${req.hospital_name}</strong> على المنصة ويمكنك الآن تسجيل الدخول وإدارة الحجوزات.`
+                : `نأسف، تم رفض طلب مستشفاك <strong>${req.hospital_name}</strong>. يمكنك مراجعة البيانات وإعادة التقديم.`,
+            },
+          });
+        } catch (emailError) {
+          console.error("Failed to send hospital request email", emailError);
+        }
+      }
+
       toast({ title: is_approved ? "تم قبول المستشفى بنجاح" : "تم رفض الطلب" });
       onUpdate();
     } catch (error: any) {
