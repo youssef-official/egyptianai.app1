@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sendTransactionalEmail } from "@/lib/email";
 
 interface AdminHospitalWithdrawalsProps {
   withdrawals: any[];
@@ -23,10 +24,10 @@ export const AdminHospitalWithdrawals = ({
   
   const handleApprove = async (requestId: string, hospitalId: string, amount: number) => {
     try {
-      // Get current hospital balance
+      // Get current hospital balance + email
       const { data: hospital } = await supabase
         .from("hospitals")
-        .select("balance")
+        .select("balance, email, name")
         .eq("id", hospitalId)
         .single();
 
@@ -54,6 +55,25 @@ export const AdminHospitalWithdrawals = ({
           admin_notes: adminNotes[requestId] || ""
         })
         .eq("id", requestId);
+
+      // Send email notification to hospital
+      if (hospital.email) {
+        try {
+          await sendTransactionalEmail({
+            type: "withdraw_approved",
+            to: hospital.email,
+            data: {
+              hospital_name: hospital.name,
+              amount,
+              notes: adminNotes[requestId] || "",
+              hero_badge_label: `${Number(amount).toLocaleString('ar-EG')} جنيه`,
+              hero_badge_tone: "success",
+            },
+          });
+        } catch (emailError) {
+          console.error("Failed to send hospital withdraw approved email", emailError);
+        }
+      }
 
       toast.success("تمت الموافقة على طلب السحب");
       onUpdate();
