@@ -76,53 +76,77 @@ const AdminDashboard = () => {
   };
 
   const loadData = async () => {
-    const { data: deposits } = await supabase
+    const { data: deposits, error: depositsError } = await supabase
       .from("deposit_requests")
       .select("*, profiles(full_name, avatar_url, phone)")
       .order("created_at", { ascending: false });
 
-    const { data: withdraws } = await supabase
+    const { data: withdraws, error: withdrawsError } = await supabase
       .from("withdraw_requests")
       .select("*, doctors(doctor_name, user_id, phone_number, image_url)")
       .order("created_at", { ascending: false });
 
-    const { data: hospitalWithdraws } = await supabase
+    const { data: hospitalWithdraws, error: hospitalWithdrawsError } = await supabase
       .from("hospital_withdrawal_requests")
       .select("*, hospitals(name, email, phone, logo_url)")
       .order("created_at", { ascending: false });
 
-    const { data: usersData } = await supabase
+    const { data: usersData, error: usersError } = await supabase
       .from("profiles")
       .select("*, wallets(balance)")
       .order("created_at", { ascending: false });
 
-    const { data: doctorsData } = await supabase
+    const { data: doctorsData, error: doctorsError } = await supabase
       .from("doctors")
       .select("*, profiles(avatar_url)")
       .order("created_at", { ascending: false });
 
-    const { data: doctorReqs } = await supabase
+    const { data: doctorReqs, error: doctorReqsError } = await supabase
       .from("doctor_requests")
       .select("*")
       .order("created_at", { ascending: false });
 
-    const { data: hospitalReqs } = await supabase
+    const { data: hospitalReqs, error: hospitalReqsError } = await supabase
       .from("hospital_requests")
       .select("*")
       .order("created_at", { ascending: false });
 
-    const { data: wallets } = await supabase.from("wallets").select("balance");
+    const { data: wallets, error: walletsError } = await supabase.from("wallets").select("balance");
+
+    if (
+      depositsError ||
+      withdrawsError ||
+      hospitalWithdrawsError ||
+      usersError ||
+      doctorsError ||
+      doctorReqsError ||
+      hospitalReqsError ||
+      walletsError
+    ) {
+      console.error("Admin loadData error", {
+        depositsError,
+        withdrawsError,
+        hospitalWithdrawsError,
+        usersError,
+        doctorsError,
+        doctorReqsError,
+        hospitalReqsError,
+        walletsError,
+      });
+    }
+
     const totalBalance = wallets?.reduce((sum, w) => sum + Number(w.balance), 0) || 0;
-    
+
     // Commission stats based on approved withdraw requests' commission field
     const { data: approvedWithdraws } = await supabase
       .from("withdraw_requests")
       .select("commission, status")
-      .eq('status', 'approved');
+      .eq("status", "approved");
     const totalCommissions = approvedWithdraws?.reduce((sum, r) => sum + Number(r.commission || 0), 0) || 0;
 
     setDepositRequests(deposits || []);
     setWithdrawRequests(withdraws || []);
+    setHospitalWithdrawRequests(hospitalWithdraws || []);
     setUsers(usersData || []);
     setDoctors(doctorsData || []);
     setDoctorRequests(doctorReqs || []);
@@ -133,7 +157,6 @@ const AdminDashboard = () => {
       totalCommissions,
     });
   };
-
   const handleDepositApprove = async (requestId: string, amount: number, userId: string) => {
     const { data: wallet } = await supabase
       .from("wallets")
